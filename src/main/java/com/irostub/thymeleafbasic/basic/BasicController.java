@@ -31,7 +31,7 @@ public class BasicController {
         return "basic/basic-objects";
     }
 
-    @GetMapping(value = "/date")
+    @GetMapping(value = "date")
     public String date(Model model) {
         model.addAttribute("localDateTime", LocalDateTime.now());
         return "basic/date";
@@ -42,6 +42,12 @@ public class BasicController {
         model.addAttribute("param1", "data1");
         model.addAttribute("param2", "data2");
         return "basic/link";
+    }
+
+    @GetMapping(value="literal")
+    public String literal(Model model) {
+        model.addAttribute("data", "Spring!");
+        return "basic/literal";
     }
 
     @Component("helloBean")
