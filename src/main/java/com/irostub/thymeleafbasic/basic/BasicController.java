@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpSession;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping(value = "basic")
@@ -60,6 +62,38 @@ public class BasicController {
     @GetMapping(value = "attribute")
     public String attribute() {
         return "basic/attribute";
+    }
+
+    @GetMapping(value = "each")
+    public String each(Model model) {
+        addUsers(model);
+        return "basic/each";
+    }
+
+    private void addUsers(Model model) {
+        List<User> list = new ArrayList<>();
+        list.add(new User("userA", 10));
+        list.add(new User("userB", 20));
+        list.add(new User("userC", 30));
+        model.addAttribute("users", list);
+    }
+
+    static class User{
+        String username;
+        int age;
+
+        public User(String name, int age) {
+            this.username = name;
+            this.age = age;
+        }
+
+        public String getUsername() {
+            return username;
+        }
+
+        public int getAge() {
+            return age;
+        }
     }
 
     @Component("helloBean")
