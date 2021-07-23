@@ -10,6 +10,7 @@ import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.validation.ObjectError;
+import org.springframework.validation.ValidationUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -22,6 +23,7 @@ import java.util.List;
 public class ValidationItemControllerV2 {
 
     private final ItemRepository itemRepository;
+    private final ItemValidator itemValidator;
 
     @GetMapping
     public String items(Model model) {
@@ -147,11 +149,11 @@ public class ValidationItemControllerV2 {
 
     //addError() 를 사용해서 하려다보니 뭔가 복잡하고 귀찮다. 그래서 더 줄이도록 하면서 에러 수준에 따라 더 상세한 메세지가 자동으로 선택되도록 수정한다.
     //핵심은 rejectValue() 를 사용함으로써 MessageCodesResolver 를 사용하여 오류 코드를 수준에 따라 선택되도록 한다는 것에 있다.
-    @PostMapping("/add")
+    //@PostMapping("/add")
     public String addItemV4(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
-        if (!StringUtils.hasText(item.getItemName())) {
-            bindingResult.rejectValue("itemName", "required");
-        }
+        //간단하게 값이 비었는지 공백인지 등을 판단할 땐 ValidationUtils 를 사용해주면 더 직관적이고 편하게 검증할 수 있다.
+        ValidationUtils.rejectIfEmptyOrWhitespace(bindingResult, "itemName", "required");
+
         if (item.getPrice() == null || item.getPrice() < 1_000 || item.getPrice() > 1_000_000) {
             bindingResult.rejectValue("itemName", "range", new Object[]{1_000, 1_000_000}, null);
         }
@@ -165,6 +167,23 @@ public class ValidationItemControllerV2 {
                 bindingResult.reject("totalPriceMin", new Object[]{10000, result}, null);
             }
         }
+
+        if (bindingResult.hasErrors()) {
+            return "validation/v2/addForm";
+        }
+
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/validation/v2/items/{itemId}";
+    }
+
+    //컨트롤러의 로직 중 검증 로직이 절반을 넘어간다. 컨트롤러가 검증을 위해 처리하는 일이 많다는 것이다.
+    //검증 로직은 검증기에 맞겨주자.
+    @PostMapping("/add")
+    public String addItemV5(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+
+        itemValidator.validate(item, bindingResult);
 
         if (bindingResult.hasErrors()) {
             return "validation/v2/addForm";
