@@ -112,7 +112,7 @@ public class ValidationItemControllerV2 {
     }
 
     //바인딩 실패 시 전송할 message 를 체계적으로 관리 하는 버전
-    @PostMapping("/add")
+    //@PostMapping("/add")
     public String addItemV3(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
         log.debug("in bindingResult={}", bindingResult);
         log.debug("in item={}", item);
@@ -136,6 +136,37 @@ public class ValidationItemControllerV2 {
         if (bindingResult.hasErrors()) {
             log.debug("out bindingResult={}", bindingResult);
             log.debug("out item={}", item);
+            return "validation/v2/addForm";
+        }
+
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId());
+        redirectAttributes.addAttribute("status", true);
+        return "redirect:/validation/v2/items/{itemId}";
+    }
+
+    //addError() 를 사용해서 하려다보니 뭔가 복잡하고 귀찮다. 그래서 더 줄이도록 하면서 에러 수준에 따라 더 상세한 메세지가 자동으로 선택되도록 수정한다.
+    //핵심은 rejectValue() 를 사용함으로써 MessageCodesResolver 를 사용하여 오류 코드를 수준에 따라 선택되도록 한다는 것에 있다.
+    @PostMapping("/add")
+    public String addItemV4(@ModelAttribute Item item, BindingResult bindingResult, RedirectAttributes redirectAttributes, Model model) {
+        if (!StringUtils.hasText(item.getItemName())) {
+            bindingResult.rejectValue("itemName", "required");
+        }
+        if (item.getPrice() == null || item.getPrice() < 1_000 || item.getPrice() > 1_000_000) {
+            bindingResult.rejectValue("itemName", "range", new Object[]{1_000, 1_000_000}, null);
+        }
+        if (item.getQuantity() == null || item.getQuantity() > 9999) {
+            bindingResult.rejectValue("itemName", "max", new Object[]{9999}, null);
+        }
+
+        if (item.getPrice() != null && item.getQuantity() != null) {
+            int result = item.getPrice() * item.getQuantity();
+            if (result < 10_000) {
+                bindingResult.reject("totalPriceMin", new Object[]{10000, result}, null);
+            }
+        }
+
+        if (bindingResult.hasErrors()) {
             return "validation/v2/addForm";
         }
 
