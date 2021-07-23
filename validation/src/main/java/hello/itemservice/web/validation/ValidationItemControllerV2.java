@@ -29,8 +29,7 @@ public class ValidationItemControllerV2 {
 
     /**
      * V6 addItem() 과 연결되는 @InitBinder
-     * 글로벌로 설정하고 싶은 경우 main 에서 작성하거나
-     * 해당 @InitBinder 를 지워준다.
+     * 글로벌로 설정하고 싶은 경우 main 살펴보자. 모든 컨트롤러에서 동작하는 validator 도 만들 수 있다.
      */
     @InitBinder
     public void init(WebDataBinder dataBinder) {
