@@ -1,11 +1,12 @@
 package hello.login.domain.member;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Data
+@NoArgsConstructor
 public class Member {
     private Long id;
 
@@ -15,4 +16,10 @@ public class Member {
     private String loginId;
     @NotEmpty
     private String password;
+
+    public Member(String name, String loginId, String password) {
+        this.name = name;
+        this.loginId = loginId;
+        this.password = password;
+    }
 }
