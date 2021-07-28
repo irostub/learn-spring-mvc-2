@@ -21,5 +21,10 @@ public class ServletExController {
         response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
     }
 
+    @GetMapping("/error-404")
+    public void error404(HttpServletResponse response) throws IOException {
+        response.sendError(HttpServletResponse.SC_BAD_REQUEST);
+    }
+
 
 }
