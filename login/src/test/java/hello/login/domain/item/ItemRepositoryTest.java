@@ -1,6 +1,7 @@
 package hello.login.domain.item;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -15,6 +16,9 @@ class ItemRepositoryTest {
     void afterEach() {
         itemRepository.clearStore();
     }
+
+    @BeforeEach
+    void beforeEach(){itemRepository.clearStore();}
 
     @Test
     void save() {
