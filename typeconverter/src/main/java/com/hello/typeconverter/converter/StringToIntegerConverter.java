@@ -1,4 +1,4 @@
-package com.hello.typeconverter.controller;
+package com.hello.typeconverter.converter;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.convert.converter.Converter;
